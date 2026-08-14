@@ -1,6 +1,6 @@
 # Duobrew — Folder Structure Guide
 
-Industry-standard layout for this Next.js 16 (App Router) + Supabase + Zustand project. This is a **reference guide** — the app ignores it at runtime. Build the tree phase by phase; empty folders can wait.
+Industry-standard layout for this Next.js 16 (App Router) + Supabase project. This is a **reference guide** — the app ignores it at runtime. Build the tree phase by phase; empty folders can wait. The project keeps `app/`, `components/`, `lib/` and `proxy.ts` at the project **root** (no `src/` folder) — Next 16 supports both; this repo chose root for simplicity.
 
 ---
 
@@ -13,84 +13,81 @@ duobrew/
 ├── public/
 │   ├── images/
 │   └── icons/
-├── src/
-│   ├── proxy.ts                    # Next 16 guard: session refresh + role redirect
-│   ├── app/
-│   │   ├── layout.tsx              # root layout (fonts, metadata, globals)
-│   │   ├── error.tsx               # root error boundary
-│   │   ├── loading.tsx             # root loading state
-│   │   ├── not-found.tsx           # 404 page
-│   │   ├── globals.css
-│   │   ├── (auth)/                 # public route group (no protected shell)
-│   │   │   └── login/
-│   │   │       └── page.tsx        # /login
-│   │   ├── (app)/                  # protected route group (shared auth shell)
-│   │   │   ├── layout.tsx          # auth check + role-gated nav/sidebar
-│   │   │   ├── page.tsx            # / → redirect to /pos
-│   │   │   ├── pos/
-│   │   │   │   └── page.tsx        # /pos — tabs, grid, cart, checkout, receipt
-│   │   │   ├── menu/
-│   │   │   │   ├── page.tsx        # /menu — item list + CRUD
-│   │   │   │   ├── new/
-│   │   │   │   │   └── page.tsx    # /menu/new
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx    # /menu/:id — edit item
-│   │   │   ├── categories/
-│   │   │   │   └── page.tsx        # /categories
-│   │   │   ├── reports/
-│   │   │   │   ├── page.tsx        # /reports — dashboard KPIs + charts
-│   │   │   │   └── history/
-│   │   │   │       └── page.tsx    # /reports/history — date filters + order list
-│   │   │   └── settings/
-│   │   │       └── staff/
-│   │   │           └── page.tsx    # /settings/staff — admin only
-│   ├── components/
-│   │   ├── ui/                     # primitives: button input dialog select table
-│   │   ├── layout/                 # sidebar header mobile-nav
-│   │   ├── pos/                    # product-grid product-card cart cart-item checkout-dialog receipt
-│   │   ├── menu/                   # menu-table menu-form
-│   │   ├── categories/             # category-form
-│   │   ├── reports/                # kpi-card revenue-chart top-items splits order-list
-│   │   └── staff/                  # staff-form staff-table
-│   ├── lib/
-│   │   ├── supabase/               # client.ts server.ts middleware.ts
-│   │   ├── auth/                   # get-user.ts require-role.ts
-│   │   ├── schemas/                # order.ts menu.ts staff.ts (Zod validation)
-│   │   ├── actions/                # orders.ts menu.ts staff.ts (server actions)
-│   │   ├── hooks/                  # use-cart.ts (Zustand hook wrapper)
-│   │   ├── currency.ts             # ₱ formatter
-│   │   ├── utils.ts                # cn() etc.
-│   │   └── constants.ts            # shared constants
-│   ├── stores/
-│   │   └── cart-store.ts           # Zustand cart store
-│   └── types/
-│       ├── database.types.ts       # Supabase generated types
-│       ├── product.ts
-│       ├── cart.ts
-│       ├── order.ts
-│       ├── payment.ts
-│       └── user.ts
+├── app/
+│   ├── layout.tsx              # root layout (fonts, metadata, globals)
+│   ├── error.tsx               # root error boundary
+│   ├── loading.tsx             # root loading state
+│   ├── not-found.tsx           # 404 page
+│   ├── globals.css
+│   ├── (auth)/                 # public route group (no protected shell)
+│   │   └── login/
+│   │       └── page.tsx        # /login
+│   ├── (app)/                  # protected route group (shared auth shell)
+│   │   ├── layout.tsx          # auth check + role-gated nav/sidebar
+│   │   ├── page.tsx            # / → redirect to /pos
+│   │   ├── pos/
+│   │   │   └── page.tsx        # /pos — tabs, grid, cart, checkout, receipt
+│   │   ├── menu/
+│   │   │   ├── page.tsx        # /menu — item list + CRUD
+│   │   │   ├── new/
+│   │   │   │   └── page.tsx    # /menu/new
+│   │   │   └── [id]/
+│   │   │       └── page.tsx    # /menu/:id — edit item
+│   │   ├── categories/
+│   │   │   └── page.tsx        # /categories
+│   │   ├── reports/
+│   │   │   ├── page.tsx        # /reports — dashboard KPIs + charts
+│   │   │   └── history/
+│   │   │       └── page.tsx    # /reports/history — date filters + order list
+│   │   └── settings/
+│   │       └── staff/
+│   │           └── page.tsx    # /settings/staff — admin only
+├── components/
+│   ├── ui/                     # primitives: button input dialog select table
+│   ├── layout/                 # sidebar header mobile-nav
+│   ├── pos/                    # product-grid product-card cart cart-item checkout-dialog receipt
+│   ├── menu/                   # menu-table menu-form
+│   ├── categories/             # category-form
+│   ├── reports/                # kpi-card revenue-chart top-items splits order-list
+│   └── staff/                  # staff-form staff-table
+├── lib/
+│   ├── supabase/               # client.ts server.ts middleware.ts (official Supabase location)
+│   ├── auth/                   # get-user.ts require-role.ts
+│   ├── schemas/                # order.ts menu.ts staff.ts (Zod validation)
+│   ├── actions/                # orders.ts menu.ts staff.ts (server actions)
+│   ├── hooks/                  # use-cart.ts (plain React cart state)
+│   ├── currency.ts             # ₱ formatter
+│   ├── utils.ts                # cn() etc.
+│   └── constants.ts            # shared constants
+├── types/
+│   ├── database.types.ts       # Supabase generated types
+│   ├── product.ts
+│   ├── cart.ts
+│   ├── order.ts
+│   ├── payment.ts
+│   └── user.ts
+├── proxy.ts                    # Next 16 guard: getClaims() session refresh + role redirect (optimistic)
 ├── supabase/
-│   ├── migrations/                 # timestamped SQL, one file per change
+│   ├── migrations/             # timestamped SQL, one file per change
 │   └── seed.sql
-├── .env.local                      # local secrets (gitignored)
-├── .env.example                    # documented env keys (committed)
+├── .env.local                  # local secrets (gitignored)
+├── .env.example                # documented env keys (committed)
 ├── .gitignore
-├── next.config.ts
+├── next.config.ts              # cacheComponents on by default in Next 16
 ├── package.json
 ├── tsconfig.json
 ├── eslint.config.mjs
 ├── postcss.config.mjs
 ├── README.md
-└── FOLDER-STRUCTURE.md             # this guide
+└── FOLDER-STRUCTURE.md         # this guide
 ```
 
 ---
 
 ## Where things go — the rules
 
-### `app/` (in `src/`) — routes ONLY
-The App Router maps every folder inside `app/` to a URL. **Never** put components, utils, or styles here — only `page.tsx`, `layout.tsx`, route segments, and special files (`error.tsx`, `loading.tsx`, `not-found.tsx`). If it isn't a URL, it doesn't live in `app/`.
+### `app/` — routes ONLY
+The App Router maps every folder inside `app/` to a URL. **Never** put components, utils, or styles here — only `page.tsx`, `layout.tsx`, route segments, and special files (`error.tsx`, `loading.tsx`, `not-found.tsx`). If it isn't a URL, it doesn't live in `app/`. This repo keeps `app/` at the project root (no `src/` folder); Next 16 also supports `src/app/` — pick one and stay consistent.
 
 ### Route groups `(auth)` / `(app)`
 Parentheses make a folder **group** — it organizes layouts without adding to the URL.
@@ -99,24 +96,24 @@ Parentheses make a folder **group** — it organizes layouts without adding to t
 `login` sits outside `(app)` so it never inherits the auth shell. This is how the industry splits public vs protected routes.
 
 ### `components/` — everything visual that isn't a page
-Lives at `src/` root, **not** in `app/`, so Next never treats it as a route and it can be shared across pages. Group by feature (`pos/`, `menu/`, `reports/`), with a `ui/` folder for reusable primitives (button, input, dialog, select, table) and `layout/` for shell pieces (sidebar, header, mobile-nav).
+Lives at the project root, **not** in `app/`, so Next never treats it as a route and it can be shared across pages. Group by feature (`pos/`, `menu/`, `reports/`), with a `ui/` folder for reusable primitives (button, input, dialog, select, table) and `layout/` for shell pieces (sidebar, header, mobile-nav).
 
 ### `lib/` — everything non-visual
-- `lib/supabase/` — the three Supabase clients (browser, server, middleware session helper).
+- `lib/supabase/` — **the official Supabase-docs location** for the client utilities: `client.ts` (browser client), `server.ts` (server client), `middleware.ts` (the `updateSession()` helper imported by `proxy.ts` — Supabase's naming convention, **not** a Next.js file).
 - `lib/auth/` — role helpers (`getUser`, `requireRole`).
 - `lib/schemas/` — Zod validators, one per domain, mirroring the actions.
 - `lib/actions/` — **server actions** (checkout, menu CRUD, staff). Mutations that touch the DB go here, not in an `app/api/` route, so role checks happen server-side before any write.
-- `lib/hooks/` — custom React hooks (`use-cart` wraps the Zustand store).
+- `lib/hooks/` — custom React hooks (`use-cart` holds the cart state in plain React — no external state library).
 - `lib/currency.ts`, `lib/utils.ts`, `lib/constants.ts` — small shared helpers.
 
-### `stores/` — global client state
-Zustand stores for state shared across screens. Cart is the one for v1. Client-only global state goes here, separate from server-side data (which the server owns).
+### No global state library in v1
+Cart state is plain React (`useState`/`useReducer`, possibly React context) inside `lib/hooks/use-cart.ts`. There is **no Zustand / Redux / TanStack Query** in v1 — Server Components and Server Actions cover server data, and the cart is only shared between the POS grid and cart panel. Add a global store later only if client state genuinely spans unrelated screens.
 
 ### `types/` — shared TypeScript types
 `database.types.ts` (generated from Supabase) plus your own domain types (product, cart, order, payment, user).
 
-### `src/proxy.ts`, not `middleware.ts`
-Next 16 renamed middleware → **proxy**. It runs before requests, refreshing the Supabase session and redirecting users by role. It lives beside `src/app/`.
+### `proxy.ts` at the root, not `middleware.ts`
+Next 16 renamed middleware → **proxy**. The single `proxy.ts` lives at the project root beside `app/` (Next 16 also allows `src/proxy.ts` if the project uses `src/`). It runs before requests: it refreshes the Supabase session via `supabase.auth.getClaims()` (JWT signature validation — **never** `getSession()`) and redirects by role. Proxy is an **optimistic** check — Next 16 explicitly says it is not full session management or authorization, so Server Components and Server Actions re-check `profiles.role` per request. The `updateSession()` helper it imports lives in `lib/supabase/middleware.ts`.
 
 ### `supabase/migrations/` — timestamped SQL
 One file per schema change: `20260812000000_create_profiles.sql`. Timestamps keep migrations in order and match Supabase CLI conventions (vs a single `001_init.sql`). `seed.sql` holds sample data.
@@ -126,6 +123,8 @@ Images/icons served at the root URL (`/images/logo.png`). No code, no processing
 
 ### Config at the root
 `next.config.ts`, `tsconfig.json`, `package.json`, `eslint.config.mjs`, `postcss.config.mjs`, `.env.local` (gitignored) + `.env.example` (committed, documented keys).
+
+Next 16 runs on the Cache Components model (`cacheComponents` on by default). Responses that `setAll` writes auth cookies to **must not be cached** by CDNs or reverse proxies — `lib/supabase/server.ts` and `proxy.ts` apply the cache headers Supabase passes to `setAll(cookiesToSet, headers)` (`Cache-Control: private, no-store`, `Expires`, `Pragma`) to the HTTP response, so one user's session is never served to another user.
 
 ---
 
@@ -145,11 +144,11 @@ Images/icons served at the root URL (`/images/logo.png`). No code, no processing
 
 | Phase | Builds |
 |---|---|
-| 1 | `src/app` skeleton, `(auth)/login`, `(app)/layout.tsx` + `(app)/page.tsx`, `components/layout/`, root special files, `src/proxy.ts` |
+| 1 | `app` skeleton, `(auth)/login`, `(app)/layout.tsx` + `(app)/page.tsx`, `components/layout/`, root special files, `proxy.ts` |
 | 2 | `supabase/migrations/*.sql`, `seed.sql`, `lib/supabase/types.ts` |
-| 3 | `lib/supabase/client.ts` `server.ts` `middleware.ts`, `lib/auth/`, login form |
+| 3 | `lib/supabase/client.ts` `server.ts` `middleware.ts` (session refresh via `getClaims()`), `lib/auth/`, login form |
 | 4 | role gates in `proxy.ts` + `(app)/layout.tsx`, `components/layout/` nav gating |
-| 5 | `stores/cart-store.ts`, `lib/hooks/use-cart.ts`, `components/pos/`, `lib/actions/orders.ts`, `lib/schemas/order.ts` |
+| 5 | `lib/hooks/use-cart.ts` (plain React cart), `components/pos/`, `lib/actions/orders.ts`, `lib/schemas/order.ts` |
 | 6 | `app/menu/**`, `app/categories/**`, `components/menu/`, `components/categories/`, `lib/actions/menu.ts`, `lib/schemas/menu.ts` |
 | 7 | `app/reports/**`, `components/reports/`, `lib/actions/reports.ts` (dashboard, charts, filters) |
 | 8 | `app/settings/staff/**`, `components/staff/`, `lib/actions/staff.ts`, receipts, void flow, polish, deploy |

@@ -17,9 +17,23 @@ below. Do NOT write feature code for them — teach, guide, review, and verify.
 - Next.js **16.3.0** — `middleware.ts` is now **`proxy.ts`**
   (`node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md`). The
   root `AGENTS.md` Next.js block is auto-managed by `next dev`; keep it intact.
+  `proxy.ts` is an **optimistic** check (fast redirects) — Next 16 explicitly
+  says proxy is not full session management or authorization, so Server
+  Components / Server Actions re-check `profiles.role` per request.
 - `@supabase/ssr` 0.12.4 / `@supabase/supabase-js` 2.112.3 — use
   `createServerClient`/`createBrowserClient` with `getAll`/`setAll` cookie
   methods. Env uses `sb_publishable_...` key format (already in `.env.local`).
+- **`lib/supabase/` is the official Supabase-docs location** for the client
+  utilities (the older docs suggested `utils/supabase/`; today's guide says
+  `lib/supabase/`). Keep the repo consistent with it.
+- **Identity checks: use `supabase.auth.getClaims()`** (local JWT signature
+  verification via WebCrypto + JWKS) in `proxy.ts` and Server Components.
+  **Never trust `getSession()`** in server/proxy code — it isn't revalidated.
+  Use `getUser()` only when a fresh user record from the Auth server is needed.
+- **`setAll(cookiesToSet, headers)`** — apply the second `headers` argument to
+  the HTTP response (`Cache-Control: private, no-store`, `Expires`, `Pragma`).
+  It prevents CDN/reverse-proxy caching of responses that carry auth cookies,
+  which would leak one user's session to another.
 - Tailwind v4, React 19.2.8, App Router, TypeScript 5.
 - **Zod** for all server-action input validation. **dayjs** for date filters.
   **Recharts** for dashboard charts.
@@ -27,7 +41,9 @@ below. Do NOT write feature code for them — teach, guide, review, and verify.
 - Cart state in v1 = plain React state — NO Zustand. NO TanStack Query
   (Server Components / Server Actions cover its role in the App Router).
 - Need to add server-only env var: `SUPABASE_SERVICE_ROLE_KEY` (for
-  `auth.admin.createUser` when creating staff accounts).
+  `auth.admin.createUser` when creating staff accounts). Use it ONLY in a
+  separate server-only admin client — never in `lib/supabase/server.ts` or any
+  browser-exposed code.
 
 ## Product decisions (locked)
 
@@ -56,9 +72,10 @@ Roles in `profiles.role`: `admin`, `manager`, `cashier`.
 Enforcement (3 layers):
 1. **RLS policies** — read for authenticated; `menu_items`/`categories` write
    = manager/admin; order void update = manager/admin.
-2. **Next.js route guards** — `proxy.ts` + server components read
-   `profiles.role` per request; `/reports` and staff settings block by role;
-   void actions re-check role server-side.
+2. **Next.js route guards** — `proxy.ts` verifies identity via
+   `supabase.auth.getClaims()` and does optimistic role redirects; server
+   components read `profiles.role` per request (real authorization); `/reports`
+   and staff settings block by role; void actions re-check role server-side.
 3. **UI gating** — nav items, void buttons, staff section only for allowed
    roles.
 
@@ -82,11 +99,13 @@ Enforcement (3 layers):
 
 - `lib/supabase/client.ts` — `createBrowserClient`
 - `lib/supabase/server.ts` — `createServerClient` (getAll/setAll cookies)
-- `lib/supabase/middleware.ts` — session-refresh helper
+- `lib/supabase/middleware.ts` — `updateSession()` helper module imported by
+  `proxy.ts` (Supabase's naming convention — **not** a Next.js file)
 - `lib/supabase/types.ts` — Database types
 - `lib/auth/` — `getCurrentUser()`, `getRole()`, `requireRole(...roles)`
 - `lib/currency.ts` — ₱ formatter
-- `proxy.ts` (root) — session refresh + route protection + role-aware redirect
+- `proxy.ts` (root) — `getClaims()` session refresh + optimistic role redirect
+  (role re-checked server-side in Server Components / actions)
 - `app/login/page.tsx` — email/password sign-in
 - `app/(app)/layout.tsx` — protected shell with role-gated nav
 - `app/(app)/pos/` — category tabs, item grid, cart, checkout, receipt
