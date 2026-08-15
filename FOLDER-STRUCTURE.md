@@ -40,6 +40,8 @@ duobrew/
 │   │   │   └── history/
 │   │   │       └── page.tsx    # /reports/history — date filters + order list
 │   │   └── settings/
+│   │       ├── roles/
+│   │       │   └── page.tsx    # /settings/roles — permission grid (admin only)
 │   │       └── staff/
 │   │           └── page.tsx    # /settings/staff — admin only
 ├── components/
@@ -52,7 +54,7 @@ duobrew/
 │   └── staff/                  # staff-form staff-table
 ├── lib/
 │   ├── supabase/               # client.ts server.ts middleware.ts (official Supabase location)
-│   ├── auth/                   # get-user.ts require-role.ts
+│   ├── auth/                   # get-user.ts require-role.ts permissions.ts (dynamic RBAC)
 │   ├── schemas/                # order.ts menu.ts staff.ts (Zod validation)
 │   ├── actions/                # orders.ts menu.ts staff.ts (server actions)
 │   ├── hooks/                  # use-cart.ts (plain React cart state)
@@ -112,6 +114,31 @@ Cart state is plain React (`useState`/`useReducer`, possibly React context) insi
 ### `types/` — shared TypeScript types
 `database.types.ts` (generated from Supabase) plus your own domain types (product, cart, order, payment, user).
 
+### Dynamic RBAC (planned — Phase 4+)
+The fixed 3-role matrix is planned to become **dynamic**: an admin toggles each role's
+capabilities from the UI, instead of capabilities being hardcoded into RLS/server/UI. The
+matrix in the duobrew-pos skill is the **default seed**. Scope: edit permissions on the
+fixed 3 roles only — no creating/renaming/deleting roles.
+
+- **Schema** (replaces `profiles.role` check constraint):
+  - `roles` (id, name, description)
+  - `permissions` (id, unique `code`, label, description)
+  - `role_permissions` (role_id FK, permission_id FK, PK on both)
+  - `profiles.role` → FK to `roles.name`
+  - Seeds: 3 roles × 5 permissions — `run_pos`, `view_reports`, `manage_menu`,
+    `void_orders`, `manage_staff` — per the RBAC matrix. **Admin bypass** (super
+    permission) so an admin can never be locked out.
+- **RLS**: `has_permission(code)` SECURITY DEFINER function
+  (`auth.uid()` → `profiles.role` → `role_permissions` → `permissions`). Policies call it
+  instead of hardcoded `role = 'manager'` checks. `role_permissions` read = authenticated
+  (so the grid renders), write = admin.
+- **Server**: `lib/auth/permissions.ts` — `getPermissions()`, `requirePermission(...codes)`
+  replacing `requireRole('manager')`. Used in Server Components + Server Actions (real
+  authorization per request); `proxy.ts` keeps its optimistic role redirect.
+- **UI**: `app/settings/roles/` — admin-only roles × permissions checkbox grid +
+  `togglePermission` server action in `lib/actions/` (updates `role_permissions`,
+  `revalidatePath`).
+
 ### `proxy.ts` at the root, not `middleware.ts`
 Next 16 renamed middleware → **proxy**. The single `proxy.ts` lives at the project root beside `app/` (Next 16 also allows `src/proxy.ts` if the project uses `src/`). It runs before requests: it refreshes the Supabase session via `supabase.auth.getClaims()` (JWT signature validation — **never** `getSession()`) and redirects by role. Proxy is an **optimistic** check — Next 16 explicitly says it is not full session management or authorization, so Server Components and Server Actions re-check `profiles.role` per request. The `updateSession()` helper it imports lives in `lib/supabase/middleware.ts`.
 
@@ -147,7 +174,7 @@ Next 16 runs on the Cache Components model (`cacheComponents` on by default). Re
 | 1 | `app` skeleton, `(auth)/login`, `(app)/layout.tsx` + `(app)/page.tsx`, `components/layout/`, root special files, `proxy.ts` |
 | 2 | `supabase/migrations/*.sql`, `seed.sql`, `lib/supabase/types.ts` |
 | 3 | `lib/supabase/client.ts` `server.ts` `middleware.ts` (session refresh via `getClaims()`), `lib/auth/`, login form |
-| 4 | role gates in `proxy.ts` + `(app)/layout.tsx`, `components/layout/` nav gating |
+| 4 | role gates in `proxy.ts` + `(app)/layout.tsx`, `components/layout/` nav gating, dynamic RBAC rework (roles/permissions junction, `has_permission()`, `/settings/roles`) |
 | 5 | `lib/hooks/use-cart.ts` (plain React cart), `components/pos/`, `lib/actions/orders.ts`, `lib/schemas/order.ts` |
 | 6 | `app/menu/**`, `app/categories/**`, `components/menu/`, `components/categories/`, `lib/actions/menu.ts`, `lib/schemas/menu.ts` |
 | 7 | `app/reports/**`, `components/reports/`, `lib/actions/reports.ts` (dashboard, charts, filters) |

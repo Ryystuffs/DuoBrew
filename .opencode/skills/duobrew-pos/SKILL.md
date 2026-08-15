@@ -59,6 +59,13 @@ below. Do NOT write feature code for them — teach, guide, review, and verify.
 
 ## RBAC model
 
+> **Planned change**: the fixed 3-role matrix below will become **dynamic** — the admin
+> toggles each role's capabilities from the UI via a `role_permissions` junction table
+> (`roles` + `permissions` + `role_permissions`, with a `has_permission(code)` SECURITY
+> DEFINER RLS helper). The matrix below is the default seed. Fixed 3 roles only (no role
+> CRUD). Full design: `FOLDER-STRUCTURE.md` → "Dynamic RBAC (planned)". Build it during the
+> Phase 4 rework.
+
 Roles in `profiles.role`: `admin`, `manager`, `cashier`.
 
 | Permission               | cashier | manager | admin |
