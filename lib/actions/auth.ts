@@ -7,6 +7,9 @@ import { redirect } from "next/navigation";
 export type LoginState = {
   error?: string;
 };
+export type LogoutState = {
+        error?: string;
+    };
 
 export async function login (prevState: LoginState, formData: FormData) {
     const email = formData.get("email") as string;
@@ -26,7 +29,7 @@ export async function login (prevState: LoginState, formData: FormData) {
     redirect("/");
 }
 
-export async function logout() {
+export async function logout(prevState: LogoutState) {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
@@ -35,5 +38,5 @@ export async function logout() {
         return { error: error.message }
     }
 
-    redirect("/");
+    redirect("/login");
 }
