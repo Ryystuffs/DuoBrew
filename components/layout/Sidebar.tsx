@@ -12,7 +12,7 @@ const Sidebar = () => {
     const [state, formAction, isPending] = useActionState(logout, initialState);
   return (
     <div>
-        <form action={formAction} method="post">
+        <form action={formAction}>
             <button type="submit" disabled={isPending} className="text-white">
                 {isPending ? "Signing out..." : "Sign out"}
             </button>

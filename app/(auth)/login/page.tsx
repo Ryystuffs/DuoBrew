@@ -100,7 +100,7 @@ const AuthPage = () => {
                 disabled={isPending}
                 className="w-full rounded-lg bg-green-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-400/50 active:scale-[0.99]"
               >
-                Sign in
+                {isPending ? "Signing in..." : "Sign in"}
               </button>
 
               {state.error && (
