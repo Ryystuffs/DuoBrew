@@ -1,4 +1,14 @@
+"use client";
+import { login }  from "@/lib/actions/auth";
+import type { LoginState } from "@/lib/actions/auth";
+import { useActionState } from "react";
+
+const initialState: LoginState = {
+  error: "",
+};
+
 const AuthPage = () => {
+  const [state, formAction, isPending] = useActionState(login, initialState);
   return (
     <main className="min-h-screen bg-neutral-950 text-white flex items-center justify-center px-6">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
@@ -44,7 +54,7 @@ const AuthPage = () => {
               </p>
             </div>
 
-            <form className="space-y-5">
+            <form action={formAction} className="space-y-6">
               
               {/* Email */}
               <div className="space-y-2">
@@ -87,10 +97,15 @@ const AuthPage = () => {
               {/* Submit */}
               <button
                 type="submit"
+                disabled={isPending}
                 className="w-full rounded-lg bg-green-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-400/50 active:scale-[0.99]"
               >
                 Sign in
               </button>
+
+              {state.error && (
+                <p className="text-sm text-red-400">{state.error}</p>
+              )}
             </form>
 
             <p className="mt-6 text-center text-xs text-neutral-500">
