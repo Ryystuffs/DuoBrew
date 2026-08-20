@@ -70,6 +70,7 @@ const AuthPage = () => {
                   name="email"
                   type="email"
                   placeholder="you@example.com"
+                  autoComplete="email"
                   required
                   className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-sm text-white placeholder:text-neutral-500 outline-none transition focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
                 />
@@ -89,6 +90,7 @@ const AuthPage = () => {
                   name="password"
                   type="password"
                   placeholder="Enter your password"
+                  autoComplete="current-password"
                   required
                   className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-sm text-white placeholder:text-neutral-500 outline-none transition focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
                 />

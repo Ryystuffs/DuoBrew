@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DuoBrew POS
 
-## Getting Started
+A cashier-operated point of sale for a drinks & food stall. ₱ PHP currency, Supabase Auth, 3-role RBAC (admin / manager / cashier), menu management, checkout (Cash + QR/GCash), dashboard & reports.
 
-First, run the development server:
+This is a **learning project** — the learning track (phases 0–8) lives in `.opencode/skills/duobrew-pos/SKILL.md`; the folder conventions live in `FOLDER-STRUCTURE.md`.
+
+## Stack
+
+- **Next.js 16** (App Router, `proxy.ts` instead of `middleware.ts`)
+- **React 19** — Server Actions + `useActionState`
+- **Supabase** — Auth + Postgres (RLS), `@supabase/ssr` cookie sessions
+- **Tailwind CSS v4**, TypeScript 5, Zod for server-action validation
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and fill in the values from your Supabase project:
 
-## Learn More
+| Key | Where to get it |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase → Project Settings → API (publishable key, `sb_publishable_...`) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API (service role, **server-only** — staff management) |
 
-To learn more about Next.js, take a look at the following resources:
+## Migrations
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+SQL lives in `supabase/migrations/`, one file per change, timestamped. Apply with the Supabase CLI:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+supabase db push
+```
 
-## Deploy on Vercel
+## Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev      # development server
+npm run build    # production build
+npm run start    # run the production build
+npm run lint     # eslint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Docs
+
+- `FOLDER-STRUCTURE.md` — folder layout, RBAC design, phase mapping
+- `.opencode/skills/duobrew-pos/SKILL.md` — verified stack facts, schema, learning track

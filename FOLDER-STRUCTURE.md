@@ -53,9 +53,9 @@ duobrew/
 │   ├── reports/                # kpi-card revenue-chart top-items splits order-list
 │   └── staff/                  # staff-form staff-table
 ├── lib/
-│   ├── supabase/               # client.ts server.ts middleware.ts (official Supabase location)
+│   ├── supabase/               # client.ts server.ts proxy.ts (updateSession helper — not a Next.js file)
 │   ├── auth/                   # get-user.ts require-role.ts permissions.ts (dynamic RBAC)
-│   ├── schemas/                # order.ts menu.ts staff.ts (Zod validation)
+│   ├── schemas/                # auth.ts order.ts menu.ts staff.ts (Zod validation)
 │   ├── actions/                # orders.ts menu.ts staff.ts (server actions)
 │   ├── hooks/                  # use-cart.ts (plain React cart state)
 │   ├── currency.ts             # ₱ formatter
@@ -101,7 +101,7 @@ Parentheses make a folder **group** — it organizes layouts without adding to t
 Lives at the project root, **not** in `app/`, so Next never treats it as a route and it can be shared across pages. Group by feature (`pos/`, `menu/`, `reports/`), with a `ui/` folder for reusable primitives (button, input, dialog, select, table) and `layout/` for shell pieces (sidebar, header, mobile-nav).
 
 ### `lib/` — everything non-visual
-- `lib/supabase/` — **the official Supabase-docs location** for the client utilities: `client.ts` (browser client), `server.ts` (server client), `middleware.ts` (the `updateSession()` helper imported by `proxy.ts` — Supabase's naming convention, **not** a Next.js file).
+- `lib/supabase/` — **the official Supabase-docs location** for the client utilities: `client.ts` (browser client), `server.ts` (server client), `proxy.ts` (the `updateSession()` helper imported by the root `proxy.ts` — **not** a Next.js file).
 - `lib/auth/` — role helpers (`getUser`, `requireRole`).
 - `lib/schemas/` — Zod validators, one per domain, mirroring the actions.
 - `lib/actions/` — **server actions** (checkout, menu CRUD, staff). Mutations that touch the DB go here, not in an `app/api/` route, so role checks happen server-side before any write.
@@ -109,7 +109,7 @@ Lives at the project root, **not** in `app/`, so Next never treats it as a route
 - `lib/currency.ts`, `lib/utils.ts`, `lib/constants.ts` — small shared helpers.
 
 ### No global state library in v1
-Cart state is plain React (`useState`/`useReducer`, possibly React context) inside `lib/hooks/use-cart.ts`. There is **no Zustand / Redux / TanStack Query** in v1 — Server Components and Server Actions cover server data, and the cart is only shared between the POS grid and cart panel. Add a global store later only if client state genuinely spans unrelated screens.
+Cart state is plain React (`useState`/`useReducer`, possibly React context) inside `lib/hooks/use-cart.ts`. There is **no Redux / TanStack Query** in v1 — Server Components and Server Actions cover server data, and the cart is only shared between the POS grid and cart panel. Add a global store later only if client state genuinely spans unrelated screens.
 
 ### `types/` — shared TypeScript types
 `database.types.ts` (generated from Supabase) plus your own domain types (product, cart, order, payment, user).
@@ -140,7 +140,7 @@ fixed 3 roles only — no creating/renaming/deleting roles.
   `revalidatePath`).
 
 ### `proxy.ts` at the root, not `middleware.ts`
-Next 16 renamed middleware → **proxy**. The single `proxy.ts` lives at the project root beside `app/` (Next 16 also allows `src/proxy.ts` if the project uses `src/`). It runs before requests: it refreshes the Supabase session via `supabase.auth.getClaims()` (JWT signature validation — **never** `getSession()`) and redirects by role. Proxy is an **optimistic** check — Next 16 explicitly says it is not full session management or authorization, so Server Components and Server Actions re-check `profiles.role` per request. The `updateSession()` helper it imports lives in `lib/supabase/middleware.ts`.
+Next 16 renamed middleware → **proxy**. The single `proxy.ts` lives at the project root beside `app/` (Next 16 also allows `src/proxy.ts` if the project uses `src/`). It runs before requests: it refreshes the Supabase session via `supabase.auth.getClaims()` (JWT signature validation — **never** `getSession()`) and redirects by role. Proxy is an **optimistic** check — Next 16 explicitly says it is not full session management or authorization, so Server Components and Server Actions re-check `profiles.role` per request. The `updateSession()` helper it imports lives in `lib/supabase/proxy.ts`.
 
 ### `supabase/migrations/` — timestamped SQL
 One file per schema change: `20260812000000_create_profiles.sql`. Timestamps keep migrations in order and match Supabase CLI conventions (vs a single `001_init.sql`). `seed.sql` holds sample data.
@@ -173,7 +173,7 @@ Next 16 runs on the Cache Components model (`cacheComponents` on by default). Re
 |---|---|
 | 1 | `app` skeleton, `(auth)/login`, `(app)/layout.tsx` + `(app)/page.tsx`, `components/layout/`, root special files, `proxy.ts` |
 | 2 | `supabase/migrations/*.sql`, `seed.sql`, `lib/supabase/types.ts` |
-| 3 | `lib/supabase/client.ts` `server.ts` `middleware.ts` (session refresh via `getClaims()`), `lib/auth/`, login form |
+| 3 | `lib/supabase/client.ts` `server.ts` `proxy.ts` (session refresh via `getClaims()`), `lib/auth/`, login form, `lib/schemas/auth.ts` (zod-validated login) |
 | 4 | role gates in `proxy.ts` + `(app)/layout.tsx`, `components/layout/` nav gating, dynamic RBAC rework (roles/permissions junction, `has_permission()`, `/settings/roles`) |
 | 5 | `lib/hooks/use-cart.ts` (plain React cart), `components/pos/`, `lib/actions/orders.ts`, `lib/schemas/order.ts` |
 | 6 | `app/menu/**`, `app/categories/**`, `components/menu/`, `components/categories/`, `lib/actions/menu.ts`, `lib/schemas/menu.ts` |

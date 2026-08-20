@@ -38,7 +38,7 @@ below. Do NOT write feature code for them — teach, guide, review, and verify.
 - **Zod** for all server-action input validation. **dayjs** for date filters.
   **Recharts** for dashboard charts.
 - UI is hand-rolled with Tailwind — NO component library (no shadcn/ui).
-- Cart state in v1 = plain React state — NO Zustand. NO TanStack Query
+- Cart state in v1 = plain React state — NO TanStack Query
   (Server Components / Server Actions cover its role in the App Router).
 - Need to add server-only env var: `SUPABASE_SERVICE_ROLE_KEY` (for
   `auth.admin.createUser` when creating staff accounts). Use it ONLY in a
@@ -96,7 +96,7 @@ Enforcement (3 layers):
   nullable, voided_at nullable)
 - `order_items` (id, order_id FK, menu_item_id FK, name_snapshot, unit_price,
   qty)
-- `profiles` (id FK→auth.users, full_name, role check admin|manager|cashier,
+- `profiles` (id FK→auth.users, name, role check admin|manager|cashier,
   active bool)
 - Trigger: auto-create `profiles` row on `auth.users` insert.
 - RLS policies per the RBAC matrix.
@@ -106,10 +106,12 @@ Enforcement (3 layers):
 
 - `lib/supabase/client.ts` — `createBrowserClient`
 - `lib/supabase/server.ts` — `createServerClient` (getAll/setAll cookies)
-- `lib/supabase/middleware.ts` — `updateSession()` helper module imported by
-  `proxy.ts` (Supabase's naming convention — **not** a Next.js file)
+- `lib/supabase/proxy.ts` — `updateSession()` helper module imported by
+  `proxy.ts` (kept in `lib/supabase/` — **not** a Next.js file)
 - `lib/supabase/types.ts` — Database types
 - `lib/auth/` — `getCurrentUser()`, `getRole()`, `requireRole(...roles)`
+- `lib/schemas/` — Zod validators (`auth.ts` in Phase 3, then `order.ts`,
+  `menu.ts` in Phases 5–6)
 - `lib/currency.ts` — ₱ formatter
 - `proxy.ts` (root) — `getClaims()` session refresh + optimistic role redirect
   (role re-checked server-side in Server Components / actions)
@@ -130,10 +132,10 @@ Enforcement (3 layers):
 | 0 | TypeScript primer | types, interfaces, strict mode | annotated component until `tsc` passes |
 | 1 | App Router | routes, layouts, server vs client components | `/login`, shared layout, nav |
 | 2 | Database & Supabase | tables, FKs, RLS | apply migration, write RLS policy |
-| 3 | Auth | SSR cookies, createServerClient, session flow | login form + sign out + `proxy.ts` guard |
+| 3 | Auth | SSR cookies, createServerClient, session flow | login form + sign out + `proxy.ts` guard + zod-validate login input (`lib/schemas/auth.ts`) |
 | 4 | RBAC | roles, server checks, UI gating | route gate + role-aware nav/buttons |
-| 5 | POS core | server actions, form state, atomic inserts | category tabs, item grid, cart, checkout |
-| 6 | Menu CRUD | revalidation, mutations | add/edit/delete items, toggle available |
+| 5 | POS core | server actions, form state, atomic inserts | category tabs, item grid, cart, checkout + `lib/schemas/order.ts` |
+| 6 | Menu CRUD | revalidation, mutations | add/edit/delete items, toggle available + `lib/schemas/menu.ts` |
 | 7a | Dashboard | SQL aggregation → KPI cards | revenue totals, AOV, orders count |
 | 7b | Charts | Recharts trend/split/top-items | revenue trend, category & payment splits |
 | 7c | Filters | dayjs date ranges | Today/7-day/This month/Custom, items-sold |
