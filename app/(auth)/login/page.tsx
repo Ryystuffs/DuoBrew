@@ -106,8 +106,14 @@ const AuthPage = () => {
                 {isPending ? "Signing in..." : "Sign in"}
               </button>
 
-              {state?.errors?.email && (
-                <p className="text-sm text-red-400">{state.errors.email}</p>
+              {state.errors?.email?.[0] && (
+                <p className="text-sm text-red-400">{state.errors.email[0]}</p>
+              )}
+              {state.errors?.password?.[0] && (
+                <p className="text-sm text-red-400">{state.errors.password[0]}</p>
+              )}
+              {state.message && (
+                <p className="text-sm text-red-400">{state.message}</p>
               )}
             </form>
 

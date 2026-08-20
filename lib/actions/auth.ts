@@ -6,14 +6,14 @@ import { redirect } from "next/navigation";
 import { loginSchema } from "@/lib/schemas/auth";
 
 export type LoginState = {
-  errors?: { email?: string []; password?: string[] };
+  errors?: { email?: string[]; password?: string[] };
   message?: string;
 };
 export type LogoutState = {
         error?: string;
     };
 
-export async function login (prevState: LoginState, formData: FormData) {
+export async function login (prevState: LoginState, formData: FormData): Promise<LoginState> {
     const credentials = Object.fromEntries(formData.entries());
     const validatedFields = loginSchema.safeParse(credentials);
 
@@ -33,7 +33,7 @@ export async function login (prevState: LoginState, formData: FormData) {
         password,
     })
     if (error) {
-        return { error: error.message }
+        return { message: error.message }
     }
     console.log("Login successful");
     redirect("/");
