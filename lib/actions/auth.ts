@@ -3,18 +3,28 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { loginSchema } from "@/lib/schemas/auth";
 
 export type LoginState = {
-  error?: string;
+  errors?: { email?: string []; password?: string[] };
+  message?: string;
 };
 export type LogoutState = {
         error?: string;
     };
 
 export async function login (prevState: LoginState, formData: FormData) {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const credentials = Object.fromEntries(formData.entries());
+    const validatedFields = loginSchema.safeParse(credentials);
 
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: "Please check your inputs and try again"
+        };
+    }
+
+    const { email, password} = validatedFields.data;
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 

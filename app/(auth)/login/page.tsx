@@ -4,7 +4,8 @@ import type { LoginState } from "@/lib/actions/auth";
 import { useActionState } from "react";
 
 const initialState: LoginState = {
-  error: "",
+  errors: {},
+  message: ""
 };
 
 const AuthPage = () => {
@@ -105,8 +106,8 @@ const AuthPage = () => {
                 {isPending ? "Signing in..." : "Sign in"}
               </button>
 
-              {state.error && (
-                <p className="text-sm text-red-400">{state.error}</p>
+              {state?.errors?.email && (
+                <p className="text-sm text-red-400">{state.errors.email}</p>
               )}
             </form>
 
