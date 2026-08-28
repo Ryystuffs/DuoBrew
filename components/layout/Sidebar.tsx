@@ -3,6 +3,7 @@
 import React from 'react'
 import { logout, LogoutState } from '@/lib/actions/auth'
 import { useActionState } from 'react'
+import { } from "next/navigation" 
 
 const initialState: LogoutState = {
     error: "",
