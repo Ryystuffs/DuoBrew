@@ -26,7 +26,13 @@ export function useUser() {
                 .select("role")
                 .eq("id", user.id)
                 .single();
-                
+
+                if (!profile) {
+                    setUser(null);
+                    setRole(null);
+                    setLoading(false);
+                    return;
+                }   
                 setUser(user);
                 setRole(profile?.role as UserRoles);
                 setLoading(false);
