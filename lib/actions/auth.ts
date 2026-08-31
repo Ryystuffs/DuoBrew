@@ -6,7 +6,10 @@ import { redirect } from "next/navigation";
 import { loginSchema } from "@/lib/schemas/auth";
 
 export type LoginState = {
-  errors?: { email?: string[]; password?: string[] };
+  errors?: { 
+    email?: string[]; 
+    password?: string[] 
+};
   message?: string;
 };
 export type LogoutState = {
